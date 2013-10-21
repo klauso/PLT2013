@@ -13,10 +13,10 @@ Here are some rules for homework assignments of the first part of PLT lecture.
     ```
 
     For example, if someone called Tim submits his solution for the first
-    homework, his files should be named `Hw01-Pr01-Tim.scala`; or if he does
-    the homework together with another called Tom, their files should be named
-    `Hw01-Pr01-Tim+Tom.scala`.  For a pair, one submission is sufficient.
-    Please remember to include your parter's name.
+    homework, his files should be named `Hw01-Pr01-Tim.scala` and so on; or if
+    he does the homework together with another called Tom, their files should
+    be named `Hw01-Pr01-Tim+Tom.scala` and so on.  For a pair, one submission
+    is sufficient.  Please remember to include your parter's name.
 
 3. Your solutions should be submited _before_ the end of every sunday.  Later
    submissions will not count.  _Only_ submissions before the end of Saturday
