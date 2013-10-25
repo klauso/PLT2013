@@ -137,6 +137,7 @@ def foldExp[T](v: Visitor[T], e: Exp) : T = {
 
 val evalVisitor = Visitor[Env=>Int]( env=>_, (a,b)=>env=>a(env)+b(env), (a,b)=>env=>a(env)*b(env), x=>env => env(x)) 
 
+
 /* We can of course also restore the original interface of eval */
 
 def eval2(e: Exp, env: Env) = foldExp(evalVisitor,e)(env) 
@@ -150,6 +151,9 @@ assert( eval2(test,testEnv) == 14)
 val countVisitor = Visitor[Int]( _=>1, _+_, _+_, _=>0) 
 val printVisitor = Visitor[String](_.n.toString, "("+_+"+"+_+")", _+"*"+_, _.x.toString)
 
+// case class Visitor[T](num: Int => T, add: (T,T)=>T, mul: (T,T)=>T, id: Symbol=>T)
+val expVisitor = Visitor[Exp]( Num(_), Add(_,_), Mul(_,_), Id(_)  )
+ 
 def countNums(e: Exp) = foldExp(countVisitor, e) 
 
 assert(countNums(test) == 1)
