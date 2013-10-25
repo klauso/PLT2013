@@ -59,12 +59,7 @@ def subst(e: Exp,i: Symbol,v: Num) : Exp =  e match {
                                    if (x == i) body else subst(body,i,v))
     case Call(f,args) => Call(f, args.map(subst(_,i,v)))
 }
-/* But is the extension really so straightforward?  It can be seen in the last line that our
- * substitution deliberately ignores the function name `f'.  We say in this case that function
- * names and variable names live in different "name spaces".  An alternative would be to have a 
- * common namespace.
- */
- 
+
 /* We will first study a "reference interpreter" based on substitution.
  * We pass the map of functions as an additional parameter. */
 def eval(funs: Funs, e: Exp) : Int = e match {
@@ -86,6 +81,15 @@ def eval(funs: Funs, e: Exp) : Int = e match {
      eval(funs,substbody)
   }   
 }
+
+/* Is the extension really so straightforward?  It can be seen in the last line
+ * of our definition for `subst` that variable substitution deliberately
+ * ignores the function name `f`.  The substitution for `f` instead is handled
+ * separately inside `eval`.  We say in this case that function names and
+ * variable names live in different "name spaces".  An alternative would be to
+ * have them share one namespace.  As an exercise, think about how to support a
+ * common namespace for function names and variable names.
+ */
 
 /* A test case */
 val someFuns = Map( 'adder -> FunDef(List('a,'b), Add('a,'b)),
