@@ -149,7 +149,7 @@ assert( eval2(test,testEnv) == 14)
 /* We can of course also apply other algorithms using visitors, such as 
  * counting the number of "Num" literals, or printing to a string: */
 val countVisitor = Visitor[Int]( _=>1, _+_, _+_, _=>0) 
-val printVisitor = Visitor[String](_.n.toString, "("+_+"+"+_+")", _+"*"+_, _.x.toString)
+val printVisitor = Visitor[String](_.n.toString, "("+_+"+"+_+")", _+"*"+_, _.x.name)
 
 // case class Visitor[T](num: Int => T, add: (T,T)=>T, mul: (T,T)=>T, id: Symbol=>T)
 val expVisitor = Visitor[Exp]( Num(_), Add(_,_), Mul(_,_), Id(_)  )
