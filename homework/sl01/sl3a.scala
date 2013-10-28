@@ -1,21 +1,21 @@
 object AExp {
-  abstract class AExp
+  abstract class Exp
 
-  case class Num(int : Int) extends AExp
-  case class Add(lhs : AExp, rhs : AExp) extends AExp
-  case class Mul(lhs : AExp, rhs : AExp) extends AExp
-  case class Var(sym : Symbol) extends AExp
+  case class Num(int : Int) extends Exp
+  case class Add(lhs : Exp, rhs : Exp) extends Exp
+  case class Mul(lhs : Exp, rhs : Exp) extends Exp
+  case class Var(sym : Symbol) extends Exp
   // In functional style, extending the language with new data (classes) causes
   // changes to all existing operations (methods).
-  case class Sub(lhs : AExp, rhs : AExp) extends AExp
-  case class Div(lhs : AExp, rhs : AExp) extends AExp
+  case class Sub(lhs : Exp, rhs : Exp) extends Exp
+  case class Div(lhs : Exp, rhs : Exp) extends Exp
 
-  implicit def toNum(int : Int) : AExp = Num(int)
-  implicit def toVar(sym : Symbol) : AExp = Var(sym)
+  implicit def toNum(int : Int) : Exp = Num(int)
+  implicit def toVar(sym : Symbol) : Exp = Var(sym)
 
   type Env = Map[Symbol, Int]
 
-  def evaluate(exp : AExp, env : Env) : Int = exp match {
+  def evaluate(exp : Exp, env : Env) : Int = exp match {
     case Num(int) => int
     case Add(lhs, rhs) => evaluate(lhs, env) + evaluate(rhs, env)
     case Mul(lhs, rhs) => evaluate(lhs, env) * evaluate(rhs, env)
@@ -31,9 +31,9 @@ object AExp {
     }
   }
 
-  def print(exp : AExp) = {
-    def pretty(sup : Int, exp : AExp) : String = {
-      def group(sub : Int, lhs : AExp, bop : Symbol, rhs : AExp) = {
+  def print(exp : Exp) = {
+    def pretty(sup : Int, exp : Exp) : String = {
+      def group(sub : Int, lhs : Exp, bop : Symbol, rhs : Exp) = {
         val ppe = pretty(sub, lhs) + " " + bop.name + " " + pretty(sub, rhs)
         if (sub < sup) "(" + ppe + ")" else ppe
       }
