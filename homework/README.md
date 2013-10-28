@@ -28,5 +28,6 @@
    have tried.
 
 5. If you find the specification of the problem not clear, feel free to ask for
-   clarificatioin by sending [me](<day@informatik.uni-marbug.de>) an email.
+   clarificatioin by sending
+   <a href="mailto:day@informatik.uni-marbug.de">me</a> an email.
 
