@@ -4,9 +4,9 @@
    individual or a pair.  Remember, if you do not, you are _not_ allowed to
    attend the final exam.
 
-2. Please send your source files to <pllecture@informatik.uni-marburg.de> or
-   <pllecture@mathematik.uni-marburg.de> and follow the convention below to
-   name your files:
+2. Please send your source files to
+   <a href="mailto:pllecture@informatik.uni-marburg.de">pllecture@informatk</a>
+   and follow the convention below to name your files:
 
     ```
     PLT2013-Hw<Homework Number>-Pr<Problem Number>-<Your Name>+<Parter's Name>.scala
