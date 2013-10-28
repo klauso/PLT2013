@@ -1,5 +1,4 @@
-Here are some rules for homework assignments for the first part of the PLT
-lecture.
+**Attention** (for Part-1 homework assignments of the PLT lecture)
 
 1. The homework is mandatory, meaning you _must_ submit your solutions, as an
    individual or a pair.  Remember, if you do not, you are _not_ allowed to
@@ -10,7 +9,7 @@ lecture.
    name your files:
 
     ```
-    PLT2013-Hw<Homework Number>-Pr<Problem Number>-<Your Name>+<Your Parter's Name>.scala
+    PLT2013-Hw<Homework Number>-Pr<Problem Number>-<Your Name>+<Parter's Name>.scala
     ```
 
     For example, if someone called Sam submits his solutions for the first
@@ -21,10 +20,13 @@ lecture.
     parter's name.
 
 3. Your solutions should be submitted _before_ the end of every Sunday.  Later
-   submissions do not count.  _Only_ submissions before the end of Saturday
+   submissions do not count.  _Only_ submissions _before_ the end of Saturday
    will get feedback. 
 
 4. In case you can not fully solve a problem, please include your partial
    solution and describe what part is difficult for you, so that I know you
    have tried.
+
+5. If you find the specification of the problem not clear, feel free to ask for
+   clarificatioin by sending [me](<day@informatik.uni-marbug.de>) an email.
 
