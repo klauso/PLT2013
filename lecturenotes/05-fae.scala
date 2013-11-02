@@ -175,7 +175,7 @@ assert( subst(Fun('x, Add('x,'y)), 'y, Add('x,5)) == Fun('x0,Add(Id('x0),Add(Id(
  * The remainder of the interpreter is unsurprising. 
  */
 def eval(e: Exp) : Exp = e match {
-  case Id(v) => sys.error("unbound identifier: "+v)
+  case Id(v) => sys.error("unbound identifier: " + v.name)
   case Add(l,r) => (eval(l), eval(r)) match {
                      case (Num(x),Num(y)) => Num(x+y)
                      case _ => sys.error("can only add numbers")
@@ -190,7 +190,7 @@ def eval(e: Exp) : Exp = e match {
 /* We can also make the return type more precise to verify the invariant 
  * that numbers and functions are the only values. */
 def eval2(e: Exp) : Either[Num,Fun] = e match {
-  case Id(v) => sys.error("unbound identifier: "+v)
+  case Id(v) => sys.error("unbound identifier: " + v.name)
   case Add(l,r) => (eval2(l), eval2(r)) match {
                      case (Left(Num(x)),Left(Num(y))) => Left(Num(x+y))
                      case _ => sys.error("can only add numbers")

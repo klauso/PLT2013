@@ -64,14 +64,14 @@ def subst(e: Exp,i: Symbol,v: Num) : Exp =  e match {
  * We pass the map of functions as an additional parameter. */
 def eval(funs: Funs, e: Exp) : Int = e match {
   case Num(n) => n
-  case Id(x) => sys.error("unbound identifier: "+x)
+  case Id(x) => sys.error("unbound identifier: " + x.name)
   case Add(l,r) => eval(funs,l) + eval(funs,r)
   case Mul(l,r) => eval(funs,l) * eval(funs,r)
   case With(x, xdef, body) => eval(funs,subst(body,x,Num(eval(funs,xdef)))) 
   case Call(f,args) => {
      val fd = funs(f) // lookup function definition 
      val vargs = args.map( eval(funs,_)) // evaluate function arguments
-     if (fd.args.size != vargs.size) sys.error("number of paramters in call to "+f+" does not match")
+     if (fd.args.size != vargs.size) sys.error("number of paramters in call to " + f.name + " does not match")
      // We construct the function body to be evaluated by subsequently substituting all formal
      // arguments with their respective argument values.
      // If we have only a single argument "fd.arg" and a single argument value "varg", 
@@ -146,7 +146,7 @@ def evalWithEnv(funs: Funs, env: Env, e: Exp) : Int = e match {
   case Call(f,args) => {
      val fd = funs(f) // lookup function definition 
      val vargs = args.map(evalWithEnv(funs,env,_)) // evaluate function arguments
-     if (fd.args.size != vargs.size) sys.error("number of paramters in call to "+f+" does not match")
+     if (fd.args.size != vargs.size) sys.error("number of paramters in call to " + f.name + " does not match")
      // We construct the environment by associating each formal argument to its actual value    
      val newenv = Map() ++ fd.args.zip(vargs)
      evalWithEnv(funs,newenv,fd.body)
