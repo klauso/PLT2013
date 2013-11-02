@@ -37,7 +37,7 @@ be submitted as a "pull request". You can of course also send an email to Klaus 
  * The rest remains exactly the same. */
 
 def evalcbn(e: Exp) : Exp = e match {
-  case Id(v) => sys.error("unbound identifier: "+v)
+  case Id(v) => sys.error("unbound identifier: " + v.name)
   case Add(l,r) => (evalcbn(l), evalcbn(r)) match {
                      case (Num(x),Num(y)) => Num(x+y)
                      case _ => sys.error("can only add numbers")

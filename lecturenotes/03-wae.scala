@@ -105,7 +105,7 @@ val test = With('x, 5, Add('x,'x))
 def makeEval(subst: (Exp,Symbol,Num)=>Exp) : Exp=>Int = {
   def eval(e: Exp) : Int = e match {
     case Num(n) => n
-    case Id(x) => sys.error("unbound variable: "+x)
+    case Id(x) => sys.error("unbound variable: " + x.name)
     case Add(l,r) => eval(l) + eval(r)
     case Mul(l,r) => eval(l) * eval(r)
     case With(x, xdef, body) => eval(subst(body,x,Num(eval(xdef)))) // take the int and wrap it into a Num
