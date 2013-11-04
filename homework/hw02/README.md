@@ -1,4 +1,8 @@
-The sample solutions demonstrate my style of implementing a language.  In
+This directory contains sample solutions to [hw02.md](hw02.md).  If you find
+problems, you are welcome to send <a
+href="mailto:day@informatik.uni-marbug.de">me</a> a bug report by email.
+
+These sample solutions demonstrate my style of implementing a language.  In
 particular, I distinguish between _normalization_ and _evaluation_ and are in
 favor of the former.  Please think twice before you follow.  ;)
 
