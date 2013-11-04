@@ -21,7 +21,8 @@
 
 3. Your solutions should be submitted _before_ the end of every Sunday.  Later
    submissions do not count.  _Only_ submissions _before_ the end of Saturday
-   will get feedback. 
+   will get feedback.  In other words, the end of Sunday is the _hard_
+   deadline, and the end of Saturday is the _soft_ deadline.
 
 4. In case you can not fully solve a problem, please include your partial
    solution and describe what part is difficult for you, so that I know you
