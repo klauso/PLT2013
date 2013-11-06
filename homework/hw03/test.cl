@@ -6,22 +6,22 @@
 ;;; evaluating `(load "test.cl")`.  Once it is loaded, just evaluate one of
 ;;; `test1` through `test5` to see the result.
 
-(setf test1
+(defvar test1
   (progn (defun id (x) x)
          (let ((id 2))
            id ) ) )
 
-(setf test2
+(defvar test2
   (progn (defun id (x) x)
          (let ((id 2))
            (id 1) ) ) )
 
-(setf test3
+(defvar test3
   (progn (defun id (x) x)
          (defun id (x) 2)
          (id 1) ) )
 
-(setf test4
+(defvar test4
   (progn (defun id (x) x)
          (let ((id 2))
            (funcall (function id) 1) ) ) )
@@ -33,13 +33,13 @@
            (funcall f (funcall f x)) )
          (function f2) ) )
 
-(setf test5
+(defvar test5
   (let ((y 1))
     (progn (defun f (x) (+ (double x) y))
            (let ((g (twice (function f))))
              (funcall g 1) ) ) ) )
 
-(setf tests
+(defvar tests
   (and (= test1 2)
        (= test2 1)
        (= test3 2)
