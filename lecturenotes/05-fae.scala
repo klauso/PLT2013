@@ -144,7 +144,8 @@ def subst(e1 : Exp, x: Symbol, e2: Exp) : Exp = e1 match {
   case App(f,a) => App(subst(f,x,e2),subst(a,x,e2))
   case Fun(param,body) => 
     if (param == x) e1 else {
-      val newvar = freshName(freeVars(e2), param)
+      val fvs = freeVars(body) ++ freeVars(e2)
+      val newvar = freshName(fvs, param)
       Fun(newvar, subst(subst(body, param, Id(newvar)), x, e2))
     }                            
 }
@@ -154,6 +155,7 @@ assert( subst(Add(5,'x), 'y, 7) == Add(5,'x))
 assert( subst(Fun('x, Add('x,'y)), 'x, 7) == Fun('x, Add('x,'y)))
 // test capture-avoiding substitution
 assert( subst(Fun('x, Add('x,'y)), 'y, Add('x,5)) == Fun('x0,Add(Id('x0),Add(Id('x),Num(5)))))
+assert( subst(Fun('x, Add(Id('x0), Id('y))), 'y, Add(Id('x), 5)) == Fun('x1, Add(Id('x0), Add(Id('x), Num(5)))) )
 
 /* OK, equipped with this new version of substitution we can now define the interpreter
  * for this language.
