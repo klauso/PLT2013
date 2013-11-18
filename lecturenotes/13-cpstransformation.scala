@@ -152,7 +152,8 @@ def test = println("Total sum: "+allCosts(testData))
 /* This version of allCosts is clearly not web-friendly, because it uses inputNumber,
  * which we do not know how to implement for the web.
  *
- * The first thing to observe is that on its own, tally is not a complete program: it doesn't do anything!
+ * The first thing to observe is that on its own, allCosts is not a complete program: it doesn't do anything unless
+ * it is called with actual parameters!
  * Instead, it is a library procedure that may be used in many different contexts. Because it has a Web interaction,
  * however, there is the danger that at the point of interaction, the rest of the computation --- that is, the
  * computation that invoked allCosts --- will be lost. To prevent this, allCosts must consume an extra argument, 
