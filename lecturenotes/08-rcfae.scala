@@ -62,27 +62,35 @@ val sum = Letrec('sum, Fun('n, If0('n, 0, Add('n, App('sum, Add('n,-1))))), App(
  * envbody = env + (x -> ClosureV(Fun('n, ...'sum..), envbody))
  *
  * Obviously envbody must be circular. There are different ways to create such a circular
- * environment. We will choose mutation to create a circle. More specifically, we use
- * a mutable Map (initialized to env) as environment when evaluating e and then mutate
- * the environment to include a mapping from x to the evaluated closure.
+ * environment. We will choose mutation to create a circle. More specifically, we introduce
+ * a mutable pointer to a value (class ValuePointer) which will be initialized with
+ * a null pointer. In the Letrec case, we put such a ValuePointer in the environment
+ * and evaluate the (recursive) expression in that environment. Then we update the pointer
+ * with the result of evaluating that epxression.
  *
- * To be able to use both mutable and immutable maps as environments, we define: 
+ * The only other change we need to make is to dereference a potential value pointer 
+ * in the Id case. We deal with the necessary case distinction by a polymorphic "value" method.
  */
 
+/* Due to the mutual recursion between ValueHolder and Value the definitions are put into an object. */
+object Values {
+  trait ValueHolder {
+    def value : Value
+  }  
+  sealed abstract class Value extends ValueHolder { def value = this }
+  case class ValuePointer(var v: Value) extends ValueHolder { def value = v }
+  case class NumV(n: Int) extends Value
+  case class ClosureV(f: Fun, env: Env) extends Value
+  type Env = Map[Symbol, ValueHolder] 
+}  
 
-/* No changes to the values in our language. */
-sealed abstract class Value
+import Values._  // such that we do not have to write Values.ValueHolder etc.
 
-type Env = scala.collection.Map[Symbol, Value] // just "Map" defaults to scala.collection.immutable.Map
-
-case class NumV(n: Int) extends Value
-case class ClosureV(f: Fun, env: Env) extends Value
-
-
-/* The interpreter is unchanged except for the additional Letrec case. */
+ 
+/* The interpreter is unchanged except for the additional Letrec case and the modified Id case. */
 def eval(e: Exp, env: Env) : Value = e match {
   case Num(n: Int) => NumV(n)
-  case Id(x) => env(x)
+  case Id(x) => env(x).value  // dereference potential ValuePointer
   case If0(cond, thenExp, elseExp) => eval(cond,env) match {
     case NumV(0) => eval(thenExp,env)
     case _ => eval(elseExp,env)
@@ -99,11 +107,19 @@ def eval(e: Exp, env: Env) : Value = e match {
     case _ => sys.error("can only apply functions")
   }
   case Letrec(x,e,body) => {
-    val mutableenv =  scala.collection.mutable.Map() ++ env // create mutable map, initialize it to env
-    mutableenv += x -> eval(e,mutableenv)  // evaluate e and then create circle in the environment
-    eval(body,mutableenv) // evaluate body in circular environment
+    val vp = ValuePointer(null)  // initialize pointer with null
+    val newenv = env + (x -> vp)  // evaluate e in the environment extended with the placeholder
+	vp.v = eval(e,newenv)         // create the circle in the environment
+    eval(body,newenv) // evaluate body in circular environment
   }
 }
 
 /* The sum of numbers from 1 to 10 should be 55. */
 assert(eval(sum, Map.empty) == NumV(55))
+
+// These test cases were contributed by rzhxeo
+var func = Fun('n, If0('n, 0, App('func, Add('n, -1))))
+var test1 = Letrec('func, func, App('func, 1))
+var test2 = Letrec('func, App(Fun('notUsed, func), 0), App('func, 1))
+assert(eval(test1, Map()) == NumV(0)) 
+assert(eval(test2, Map()) == NumV(0)) 
