@@ -117,7 +117,7 @@ def eval(e: Exp, env: Env) : Value = e match {
 /* The sum of numbers from 1 to 10 should be 55. */
 assert(eval(sum, Map.empty) == NumV(55))
 
-// These test cases were contributed by rzhxeo
+// These test cases were contributed by rzhxeo (Sebastian Py)
 var func = Fun('n, If0('n, 0, App('func, Add('n, -1))))
 var test1 = Letrec('func, func, App('func, 1))
 var test2 = Letrec('func, App(Fun('notUsed, func), 0), App('func, 1))
