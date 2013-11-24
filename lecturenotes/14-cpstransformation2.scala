@@ -84,7 +84,7 @@ be submitted as a "pull request". You can of course also send an email to Klaus 
   
   This is a function that accepts a value and a dynamic continuation and sends the value to that continuation.
   
-  We are now reade to write this transformation formally, as a source-to-source transformation. This transformation
+  We are now ready to write this transformation formally, as a source-to-source transformation. This transformation
   could have the type cps(e: Exp): Exp, but we choose a different type for two reasons:
   1) In CPS we need function definitions and applications with two arguments instead of one. This could be addressed
      by adding new syntax.
