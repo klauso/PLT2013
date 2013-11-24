@@ -92,22 +92,22 @@ val cont1 = (n: Int) => println(n + inputNumber("Second number"))
  */
  
  
-val continuations = new scala.collection.mutable.HashMap[Int, Int=>Nothing]()
-var nextId : Int = 0
+val continuations = new scala.collection.mutable.HashMap[Symbol, Int=>Nothing]()
+var nextIndex : Int = 0
 def getNextID = {
-  nextId += 1
-  nextId
+  nextIndex += 1
+  Symbol("c" + nextIndex.toString)
 }
 
 def webread_k(prompt: String, k: Int=>Nothing) : Nothing = {
   val id = getNextID
   continuations += (id -> k)
   println(prompt)
-  println("to continue, invoke continuation: "+id)
+  println("to continue, invoke continuation: "+id.toString)
   sys.error("program terminated")
 }
 
-def continue(kid: Int, result: Int) = continuations(kid)(result)  
+def continue(kid: Symbol, result: Int) = continuations(kid)(result)  
 
 /* Using webread_k, we can now define our addition server as follows.
  * If you try prog, ignore the stack traces.
@@ -117,16 +117,16 @@ def webprog = webread_k("enter first number", (n) =>
              webread_k("enter second number", (m) => webdisplay("The sum of "+n+" and "+m+" is "+(n+m))))
 
 /* For instance, try:
- * scala> webprog          -- yields some continuation id c1
- * scala> continue(c1,5)   -- yields some continuation id c2  
- * scala> continue(c2,7)  
+ * scala> webprog          -- yields some continuation id 'c1
+ * scala> continue('c1,5)   -- yields some continuation id 'c2  
+ * scala> continue('c2,7)  
  *
  * This should yield the result 12 as expected. But also try:
- * scala> webprog          -- yields some continuation id c1
- * scala> contine(c1,5)    -- yields some continuation id c2
- * scala> contine(c1,6)    -- yields some continuation id c3
- * scala> continue(c2,3)   -- should yield 8
- * scala> continue(c3,3)   -- should yield 9
+ * scala> webprog          -- yields some continuation id 'c1
+ * scala> contine('c1,5)    -- yields some continuation id 'c2
+ * scala> contine('c1,6)    -- yields some continuation id 'c3
+ * scala> continue('c2,3)   -- should yield 8
+ * scala> continue('c3,3)   -- should yield 9
  *
  * The style of programming in webprog, which is obviously more complicated than the logical 
  * structure of progSimple, shows up in many practical programming scenarios - server-side web programming
@@ -224,7 +224,6 @@ def map_k[S,T](c: List[S], f: (S,T=>Nothing) => Nothing, k: List[T] => Nothing) 
 
 def allCosts2_k(itemList: List[String], k: Int => Nothing) : Nothing = 
    map_k(itemList, (x:String,k2:Int=>Nothing) => webread_k("Cost of item "+x+":", k2),(l:List[Int]) => k(l.sum)) 
-}
 
 /* Implications of the "web transformation": 
  * 
