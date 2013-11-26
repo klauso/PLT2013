@@ -5,7 +5,7 @@
    attend the final exam.
 
 2. Please send your source files to
-   <a href="mailto:pllecture@informatik.uni-marburg.de">pllecture@informatk</a>
+   <a href="mailto:pllecture@informatik.uni-marburg.de">pllecture@informatik</a>
    and follow the convention below to name your files:
 
     ```
@@ -30,5 +30,5 @@
 
 5. If you find the specification of the problem not clear, feel free to ask for
    clarificatioin by sending
-   <a href="mailto:day@informatik.uni-marbug.de">me</a> an email.
+   <a href="mailto:day@informatik.uni-marburg.de">me</a> an email.
 
