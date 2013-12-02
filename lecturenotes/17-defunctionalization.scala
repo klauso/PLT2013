@@ -75,12 +75,11 @@ object CPSTransformed {
 
 
 /*
- * The first of these techniques is _lambda lifting_, also known as _closure
- * conversion_.  The goal of lambda lifting is to turn local functions into
- * top-level functions.  That is, all "lambdas" only occur at the top-level.
- * Variables in the local environment that are normally stored in the
- * function's closure are instead passed as parameters to the top-level
- * function.
+ * The first of these techniques is _lambda lifting_.  The goal of lambda
+ * lifting is to turn local functions into top-level functions.  That is, all
+ * "lambdas" only occur at the top-level.  Variables in the local environment
+ * that are normally stored in the function's closure are instead passed as
+ * parameters to the top-level function.
  *
  * Lambda lifting is accomplished by the following steps:
  *
