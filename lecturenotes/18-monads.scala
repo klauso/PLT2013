@@ -120,8 +120,7 @@ a true monad, but we'll defer a discussion of these conditions until later.
 
 So here it is: The Monad interface. */
 
-trait Monad {
-  type M[_]
+trait Monad[M[_]] {
   def unit[A](a: A): M[A]
   def bind[A,B](m: M[A], f: A => M[B]): M[B]
 }
@@ -129,7 +128,7 @@ trait Monad {
 /* Using this interface, we can now make clientCode depend only on this interface,
 but no longer on the Option type: */
 
-def clientCode(m: Monad { type M[A] = Option[A] }) =
+def clientCode(m: Monad[Option]) =
   m.bind(f(27),  (x: String) =>
   m.bind(g(x+"z"),  (y: Boolean) =>
   m.unit(!y)))
@@ -138,11 +137,11 @@ def clientCode(m: Monad { type M[A] = Option[A] }) =
 parametric, too. We model the monad object as an implicit parameter to save
 the work of passing on the monad in every call. */
   
-def f(n: Int)(implicit m: Monad) : m.M[String] = sys.error("not implemented")
-def g(x: String)(implicit m: Monad) : m.M[Boolean] = sys.error("not implemented")
-def h(b: Boolean)(implicit m: Monad) : m.M[Int] = sys.error("not implemented")
+def f[M[_]](n: Int)(implicit m: Monad[M]) : M[String] = sys.error("not implemented")
+def g[M[_]](x: String)(implicit m: Monad[M]) : M[Boolean] = sys.error("not implemented")
+def h[M[_]](b: Boolean)(implicit m: Monad[M]) : M[Int] = sys.error("not implemented")
 
-def clientCode(implicit m: Monad) =
+def clientCode[M[_]](implicit m: Monad[M]) =
   m.bind(f(27),  (x: String) =>
   m.bind(g(x+"z"),  (y: Boolean) =>
   m.unit(!y)))
@@ -151,8 +150,7 @@ def clientCode(implicit m: Monad) =
 This monad is also sometimes called the Maybe monad. 
 */
 
-object OptionMonad extends Monad {
-  type M[A] = Option[A]
+object OptionMonad extends Monad[Option] {
   override def bind[A,B](a: Option[A], f: A => Option[B]) : Option[B] =
     a match {
       case Some(x) => f(x)
@@ -171,28 +169,80 @@ functions that are generic enough to be useful for many different monads.
 Here are some of these functions: */
 
 // fmap turns every function between A and B into a function between M[A] and M[B]
-def fmap[A,B](f: A => B)(implicit m: Monad): m.M[A] => m.M[B] = a => m.bind(a,(x:A) => m.unit(f(x)))
+def fmap[M[_],A,B](f: A => B)(implicit m: Monad[M]): M[A] => M[B] = a => m.bind(a,(x:A) => m.unit(f(x)))
 // In fancy category theory terms, we can say that every monad is a functor.
 
-def sequence[A](m: Monad)(l: List[m.M[A]]) : m.M[List[A]] = l match {
+def sequence[M[_],A](l: List[M[A]])(implicit m: Monad[M]) : M[List[A]] = l match {
   case x :: xs => m.bind(x, (y: A) => 
-                  m.bind(sequence(m)(xs), (ys : List[A]) =>
+                  m.bind(sequence(xs), (ys : List[A]) =>
 				  m.unit(y :: ys)))
   case Nil => m.unit(List.empty)
 }  
 
-def mapM[A,B](m: Monad)(f : A => m.M[B], l: List[A]) : m.M[List[B]] =
-  sequence(m)(l.map(f))
+def mapM[M[_],A,B](f : A => M[B], l: List[A])(implicit m: Monad[M]) : M[List[B]] =
+  sequence(l.map(f))
 
-/*
-trait Monad {
-  type M[_]
-  def unit[A](a: A): M[A]
-  def bind[A,B](m: M[A], f: A => M[B]): M[B]
+  
+/* Here are some other common monads: */
 
-  implicit def monadicSyntax[A](m: M[A]) = new {
-    def map[B](f: A => B) = bind(m, (x: A) => unit(f(x)))
-    def flatMap[B](f: A => M[B]) : M[B] = bind(m,f)
-  }
+// This is the Reader monad, a.k.a. Environment monad.
+// It captures the essence of "environment passing style".
+
+// The type parameter ({type M[A] = R => A})#M looks complicated, but
+// it is merely "currying" the function arrow type constructor.
+// The type constructor which is created here is M[A] = R => A
+def readerMonad[R] = new Monad[({type M[A] = R => A})#M] {
+  def bind[A,B](x: R => A, f: A => R => B) : R => B = r => f(x(r))(r) // pass the "environment" r into both computations
+  def unit[A](a: A) : R => A = (_) => a
+}
+ 
+// The State monad, in which computations depend on a state S which is threaded through the computations 
+def stateMonad[S] = new Monad[({type M[A] = S => (A,S)})#M] {
+  def bind[A,B](x: S => (A,S), f: A => S => (B,S)) : S => (B,S) = s => x(s) match { case (y,s2) => f(y)(s2) } // thread the state through the computations
+  def unit[A](a: A) : S => (A,S) = s => (a,s)
+}
+
+// The List monad, in which computations produce lists of results. The bind operator combines all those results in a single list.
+object ListMonad extends Monad[List] {
+  def bind[A,B](x: List[A], f: A => List[B]) : List[B] = x.flatMap(f) // apply f to each element, concatenate the resulting lists
+  def unit[A](a: A) = List(a)
 }  
-*/
+
+// The Continuation monad, in which computations require a continuation.
+def continuationMonad[R] = new Monad[({type M[A] = (A => R) => R})#M] {
+  def bind[A,B](x: (A => R) => R, f: A => (B => R) => R) : (B => R) => R = 
+     k => x( a => f(a)(k)) // construct continuation for x that calls f with the result of x               
+  def unit[A](a: A) : (A => R) => R = k => k(a)
+}
+
+trait IOMonad {
+  type IO[_]
+  def unit[A](a: A): IO[A]
+  def bind[A,B](m: IO[A], f: A => IO[B]): IO[B]
+  def printString(s: String) : IO[Unit]
+  def inputString : IO[String]
+  
+  def performIO[A](action: IO[A]) : A
+}  
+
+val iomonad : IOMonad = new IOMonad {
+  type World = String
+  type IO[A] = World => (A,World)
+  def unit[A](a: A): IO[A] = w => (a,w)
+  def bind[A,B](m: IO[A], f: A => IO[B]): IO[B] = w => m(w) match { case (a,w2) => f(a)(w2) }
+  def printString(s: String) : IO[Unit] = w => { println(s); ((),w +s+" was printed and then ...\n") }
+  def inputString : IO[String] = w => { val input = readLine; (input, w + input+" was entered and then ...\n") }
+  
+  def performIO[A](action: IO[A]) : A = action("The world in which nothing has happened yet, but then ...\n") match {
+    case (a,w) => println("Peformed all actions. The world in which all this happened is: \n"+w); a }
+}  
+
+def someIOActions(implicit m: IOMonad) : m.IO[Unit] = 
+  m.bind(m.printString("Enter your first name:"), (_:Unit) =>
+  m.bind(m.inputString, (firstName : String) => 
+  m.bind(m.printString("Enter your last name:"), (_:Unit) => 
+  m.bind(m.inputString, (lastName: String) => 
+  m.printString("Hello, "+firstName + " " + lastName + "!")))))
+  
+def test = iomonad.performIO(someIOActions(iomonad))  
+  
