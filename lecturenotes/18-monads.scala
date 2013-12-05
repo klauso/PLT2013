@@ -198,27 +198,27 @@ object IdentityMonad extends Monad[({type M[A] = A})#M] {
 // it is merely "currying" the function arrow type constructor.
 // The type constructor which is created here is M[A] = R => A
 def readerMonad[R] = new Monad[({type M[A] = R => A})#M] {
-  def bind[A,B](x: R => A, f: A => R => B) : R => B = r => f(x(r))(r) // pass the "environment" r into both computations
-  def unit[A](a: A) : R => A = (_) => a
+  override def bind[A,B](x: R => A, f: A => R => B) : R => B = r => f(x(r))(r) // pass the "environment" r into both computations
+  override def unit[A](a: A) : R => A = (_) => a
 }
  
 // The State monad, in which computations depend on a state S which is threaded through the computations 
 def stateMonad[S] = new Monad[({type M[A] = S => (A,S)})#M] {
-  def bind[A,B](x: S => (A,S), f: A => S => (B,S)) : S => (B,S) = s => x(s) match { case (y,s2) => f(y)(s2) } // thread the state through the computations
-  def unit[A](a: A) : S => (A,S) = s => (a,s)
+  override def bind[A,B](x: S => (A,S), f: A => S => (B,S)) : S => (B,S) = s => x(s) match { case (y,s2) => f(y)(s2) } // thread the state through the computations
+  override def unit[A](a: A) : S => (A,S) = s => (a,s)
 }
 
 // The List monad, in which computations produce lists of results. The bind operator combines all those results in a single list.
 object ListMonad extends Monad[List] {
-  def bind[A,B](x: List[A], f: A => List[B]) : List[B] = x.flatMap(f) // apply f to each element, concatenate the resulting lists
-  def unit[A](a: A) = List(a)
+  override def bind[A,B](x: List[A], f: A => List[B]) : List[B] = x.flatMap(f) // apply f to each element, concatenate the resulting lists
+  override def unit[A](a: A) = List(a)
 }  
 
 // The Continuation monad, in which computations require a continuation.
 def continuationMonad[R] = new Monad[({type M[A] = (A => R) => R})#M] {
-  def bind[A,B](x: (A => R) => R, f: A => (B => R) => R) : (B => R) => R = 
+  override def bind[A,B](x: (A => R) => R, f: A => (B => R) => R) : (B => R) => R = 
      k => x( a => f(a)(k)) // construct continuation for x that calls f with the result of x               
-  def unit[A](a: A) : (A => R) => R = k => k(a)
+  override def unit[A](a: A) : (A => R) => R = k => k(a)
 }
 
 trait IOMonad {
