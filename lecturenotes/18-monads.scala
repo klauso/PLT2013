@@ -185,6 +185,12 @@ def mapM[M[_],A,B](f : A => M[B], l: List[A])(implicit m: Monad[M]) : M[List[B]]
   
 /* Here are some other common monads: */
 
+
+object IdentityMonad extends Monad[({type M[A] = A})#M] {
+  def bind[A,B](x: A, f: A => B) : B = f(x) // pass the "environment" r into both computations
+  def unit[A](a: A) : A = a
+}
+
 // This is the Reader monad, a.k.a. Environment monad.
 // It captures the essence of "environment passing style".
 
