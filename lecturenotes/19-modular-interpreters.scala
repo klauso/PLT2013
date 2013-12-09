@@ -2,20 +2,12 @@ import scala.language.higherKinds
 import scala.language.implicitConversions
 import scala.language.reflectiveCalls
 
-trait Monad {
-  type M[_]
-  def unit[A](a: A): M[A]
-  def bind[A,B](m: M[A], f: A => M[B]): M[B]
+import monads._
 
-  implicit def monadicSyntax[A](m: M[A]) = new {
-    def map[B](f: A => B) = bind(m, (x: A) => unit(f(x)))
-    def flatMap[B](f: A => M[B]) : M[B] = bind(m,f)
-  }
-}  
+// The language components. They use only the monad interfaces.
+
 trait Expressions extends Monad {
-
-  abstract class Value
-  
+  abstract class Value 
   abstract class Exp {
     def eval : M[Value]
   }  
@@ -52,24 +44,6 @@ trait If0 extends Numbers {
   }
 }
 
-
-trait IdentityMonad extends Monad {
-  type M[A] = A
-  def unit[A](a: A) : M[A] = a
-  def bind[A,B](m: M[A], f: A => M[B]) = f(m)
-}
-
-object AE extends Arithmetic with IdentityMonad {
-  val aetest = Add(1,Add(2,3))
-}
-assert(AE.aetest.eval == AE.NumV(6)) 
-
-trait ReaderMonad extends Monad {
-  type R
-  def ask : M[R]
-  def local[A](f: R => R, a: M[A]) : M[A] 
-}  
-
 trait Functions extends Expressions with ReaderMonad {
   type Env = Map[Symbol,Value]
   override type R = Env
@@ -95,26 +69,6 @@ trait Functions extends Expressions with ReaderMonad {
   def wth(x: Symbol, xdef: Exp, body: Exp) : Exp = App(Fun(x,body),xdef)
 }  
 
-  
-trait ReaderMonadImpl extends ReaderMonad {
-  type M[X] = R => X
-  def unit[A](a: A) : M[A] = r => a
-  def bind[A,B](m: M[A], f: A => M[B]) : M[B] = r => f(m(r))(r)
-  def ask : M[R] = identity
-  def local[A](f: R => R, a: M[A]) : M[A] = (r) => a(f(r))
-}  
-
-object FAELang extends Functions with Arithmetic with ReaderMonadImpl {
-  // type R = Env
-  val faetest = App(Fun('x, Add('x, 1)), Add(2,3))
-  assert(faetest.eval(Map.empty) == NumV(6))
-}
-
-trait StateMonad extends Monad {
-  type S
-  def getState : M[S]
-  def putState(s: S) : M[Unit]
-}
 
 trait Boxes extends Expressions with StateMonad  {
   override type S = Store
@@ -163,54 +117,10 @@ trait Boxes extends Expressions with StateMonad  {
   
 }
 
-trait ReaderStateMonadImpl extends ReaderMonad with StateMonad {
-  type M[A] = (R,S) => (A,S)
-  def unit[A](a: A) : M[A] = (r : R, s: S) => (a,s)
-  def bind[A,B](m: M[A], f: A => M[B]) : M[B] = (r:R, s: S) => {
-     val (a,s2) = m(r,s)
-	 f(a)(r,s2)
-  }
-  def ask : M[R] = (r,s) => (r,s)
-  def local[A](f: R => R, a: M[A]) : M[A] = (r:R,s:S) => a(f(r),s)
-  def getState : M[S] = (r,s) => (s,s)
-  def putState(s: S) : M[Unit] = (r,_) => ((),s)
-}  
-
-object BCFAE extends Boxes with Arithmetic with Functions with If0 with ReaderStateMonadImpl {
-  val test = wth('switch, NewBox(0),
-                wth('toggle, Fun('dummy, If0(OpenBox('switch),
-                                          Seq(SetBox('switch, 1), 1),
-                                          Seq(SetBox('switch, 0), 0))),
-                             Add(App('toggle,42), App('toggle,42))))  
-}  
-
-assert(BCFAE.test.eval(Map.empty,Map.empty)._1 == BCFAE.NumV(1))
-
-trait ContinuationMonad extends Monad {
-  def callcc[A,B](f : (A => M[B]) => M[A]) : M[A]
-}
-
-def continuationMonad[R] = new ContinuationMonad {
-  type M[A] = (A => R) => R
-  override def unit[A](a: A) : M[A] = k => k(a)
-  override def bind[A,B](m: M[A], f: A => M[B]): M[B] = k => m( a => f(a)(k))
-  override def callcc[A,B](f : (A => (B => R) => R) => (A => R) => R) : (A => R) => R = k => f(a => _ => k(a))(k)
-}
-
-trait ContinuationReaderMonad extends ReaderMonad with ContinuationMonad {
-  type R
-  type T
-  type M[A] = R => (A => T) => T
-  override def unit[A](a: A) = r => k => k(a)
-  override def bind[A,B](m: M[A], f: A => M[B]) = r => k => m(r)(a => f(a)(r)(k))
-  override def ask : M[R] = r => k => k(r)
-  override def local[A](f: R => R, a: M[A]) : M[A] = r => k => a(f(r))(k)
-  override def callcc[A,B](f : (A => M[B]) => M[A]) : M[A] = r => k => f(a => r2 => k2 => k(a))(r)(k)
-}  
-
 trait Letcc extends Expressions with ContinuationMonad with ReaderMonad{
   override type R = Map[Symbol,Value]
   
+  // TODO: We introduce a new application form instead of using App because we cannot extend App
   case class CApp(f: Exp, a: Exp) extends Exp {
     override def eval : M[Value] = 
         for {
@@ -225,8 +135,29 @@ trait Letcc extends Expressions with ContinuationMonad with ReaderMonad{
   case class ContV(f: Value => M[Value]) extends Value
 }
 
-object FAEwLetcc extends Arithmetic with Functions with If0 with Letcc with ContinuationReaderMonad {
-  override type R = Env
+
+// Let's compose together some languages!
+
+object AE extends Arithmetic with IdentityMonad {
+  val aetest = Add(1,Add(2,3))
+}
+assert(AE.aetest.eval == AE.NumV(6)) 
+
+object FAELang extends Functions with Arithmetic with ReaderMonadImpl {
+  val faetest = App(Fun('x, Add('x, 1)), Add(2,3))
+  assert(faetest.eval(Map.empty) == NumV(6))
+}
+object BCFAE extends Boxes with Arithmetic with Functions with If0 with ReaderStateMonadImpl {
+  val test = wth('switch, NewBox(0),
+                wth('toggle, Fun('dummy, If0(OpenBox('switch),
+                                          Seq(SetBox('switch, 1), 1),
+                                          Seq(SetBox('switch, 0), 0))),
+                             Add(App('toggle,42), App('toggle,42))))  
+}  
+
+assert(BCFAE.test.eval(Map.empty)(Map.empty)._1 == BCFAE.NumV(1))
+
+object FAEwLetcc extends Arithmetic with Functions with If0 with Letcc with ReaderContinuationMonadImpl {
   override type T = Value
   val testprog = Add(1, Letcc('k, Add(2, CApp('k, 3))))  
 }  
