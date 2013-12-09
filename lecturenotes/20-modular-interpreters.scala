@@ -2,7 +2,10 @@ import scala.language.higherKinds
 import scala.language.implicitConversions
 import scala.language.reflectiveCalls
 
-import monads._
+// We use our monad library
+// In a real implementation we would of course put the
+// monad definitions into a library and import them
+:l 19-monads-library.scala
 
 // The language components. They use only the monad interfaces.
 
