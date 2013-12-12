@@ -110,9 +110,11 @@ def callcc(fexp : Exp) : Exp = {
   letcc(kname, App(fexp, Var(kname)))
 }
 
+def ik : Exp = Fun('v, Var('v))
+
 assert(evalTest(callcc(Fun('k, Num(2)))) == NumV(2))
 assert(evalTest(callcc(Fun('k, App(Var('k), Num(2))))) == NumV(2))
 assert(evalTest(callcc(Fun('k, App(App(Var('+), Num(1)), App(Var('k), Num(2)))))) == NumV(2))
 assert(evalTest(App(App(Var('*), Num(1)), callcc(Fun('k, App(App(Var('+), Num(2)), App(Var('k), Num(3))))))) == NumV(3))
-evalTest(App(App(Var('callcc), Fun('k, Fun('x, App(App(Var('+), Num(1)), App(Var('k), ik))))), Num(2)))
+assert(evalTest(App(App(Var('callcc), Fun('k, Fun('x, App(App(Var('+), Num(1)), App(Var('k), ik))))), Num(2))) == NumV(2))
 
