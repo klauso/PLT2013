@@ -123,7 +123,7 @@ trait Boxes extends Expressions with StateMonad  {
 trait Letcc extends Expressions with ContinuationMonad with ReaderMonad{
   override type R = Map[Symbol,Value]
   
-  // TODO: We introduce a new application form instead of using App because we cannot extend App
+  // We introduce a new application form CApp instead of using App because we cannot extend App
   case class CApp(f: Exp, a: Exp) extends Exp {
     override def eval : M[Value] = 
         for {
