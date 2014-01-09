@@ -77,10 +77,10 @@ val testclasses = Map(
      'and -> (List('x), Id('this)))),
   'Food -> Class('Object, List('organic),  Map(
      'tastesBetterThan -> 
-       (List('other), MethodCall(GetField(Id('this), 'organic), 'ifThenElse, List(New('True, List.empty), GetField(Id('otherFood), 'organic)))))),
+       (List('other), MethodCall(GetField(Id('this), 'organic), 'ifThenElse, List(New('True, List.empty), GetField(Id('other), 'organic)))))),
   'Pizza -> Class('Food, List('hasCheese), Map(
      'tastesBetterThan -> 
-       (List('other), MethodCall(GetField(Id('this), 'organic), 'and,        List(GetField(Id('this), 'hasCheese)))))))
+       (List('other), MethodCall(GetField(Id('this), 'organic), 'and, List(GetField(Id('this), 'hasCheese)))))))
      
 assert( 
  eval(testclasses,  
