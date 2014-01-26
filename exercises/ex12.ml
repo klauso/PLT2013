@@ -9,7 +9,7 @@ type ehegatte = { einkommen : geld }
 type familienstand =
   [ `ledig
   | `verheiratet of ehegatte
-  | `getrennt
+  | `geschieden
   | `verwitwet
   ]
 
