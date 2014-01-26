@@ -79,11 +79,11 @@ type arbeitnehmer =
   ; lohn : geld
   }
 
-let max : ehegatte = { einkommen = 33.00 }
+let max : ehegatte = { einkommen = 35.00 }
 
 let erika : arbeitnehmer =
   { familienstand = `verheiratet max
-  ; lohn = 67.00
+  ; lohn = 65.00
   }
 
 let steuerklasse3 : arbeitnehmer -> bool
