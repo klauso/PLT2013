@@ -4,7 +4,7 @@ import scala.language.implicitConversions
 //
 // Type inference for simply typed lambda calculus
 //
-// We will implement a type inference algorithm described
+// We will implement the type inference algorithm described
 // in Pierce's "Types and Programming Langauges",
 // sections 22.1 to 22.4, pages 317--327.
 //
@@ -250,7 +250,7 @@ def printType(name: String, exp: Exp): Unit =
 // from homework 11, problem 2
 
 // After the implementation is done, uncomment the lines
-// such as `printType(t0)` to test it.
+// such as `printType("t0", t0)` to test it.
 
 //  t0 : (T0 -> T0)
 val t0 = Fun('x, 'x)
