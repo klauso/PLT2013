@@ -32,3 +32,5 @@
    clarificatioin by sending
    <a href="mailto:day@informatik.uni-marburg.de">me</a> an email.
 
+6. Solutions to some of the homework exercises can be found [here](https://www.uni-marburg.de/fb12/ps/teaching/ws13/plt-solutions).
+
